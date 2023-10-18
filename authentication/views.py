@@ -1,5 +1,3 @@
-from urllib.parse import parse_qs
-from django.contrib.auth.base_user import password_validation
 from django.shortcuts import redirect, render
 from django.urls.resolvers import re
 from django.contrib.auth.models import User
@@ -14,29 +12,36 @@ def signup(request):
     if request.method == "POST":
         fname = request.POST.get("fname")
         lname = request.POST.get("lname")
-        username = fname
         email = request.POST.get("email")
-        number = request.POST.get("number")
-        # date = request.POST.get("date")
-        # date = date.strftime("%m/%d/%Y")
-        gender  = request.POST.get("gender")
-        address  = request.POST.get("address")
+        username = email
         password = request.POST.get("password")
         cpassword = request.POST.get("cpassword")
- 
-        my_user = User.objects.create_user(username, email, password)
-        my_user.first_name = fname
-        my_user.last_name = lname
-        my_user.save()
-        messages.success(request, "Account has been created.")
-        return redirect('signin')
+
+
+        if not password == cpassword:
+            messages.error(request, "password and confirm password doesnt match.")
+            return redirect('signup')
+
+        existing_user = User.objects.filter(username=username)
+        if existing_user.exists():
+            messages.error(request, "User with that username already exixts")
+            return redirect('signup')
+
+
+        my_user = User.objects.create_user(username=username, email=username, password=password,first_name=fname,last_name=lname)
+        if my_user:
+            my_user.save()
+            messages.success(request, "Account has been created.")
+            return redirect('signin')
+
+        
     return render(request, 'signup.html')
 
 def signin(request):
     if request.method == 'POST':
         email = request.POST.get("email")
         password = request.POST.get("password")
-        user = authenticate(email = email, password = password)
+        user = authenticate(username = email, password = password)
         if user is not None:
             login(request, user)
             fname = user.first_name

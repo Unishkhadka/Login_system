@@ -10,7 +10,7 @@
 </head>
 <body>
     {% if user.is_authenticated %}
-        <h2>Hello {{name}} you are logged in.</h2>
+        <h2>Hello {{fname}} you are logged in.</h2>
     {% else %}
         <p>You are not authenticated. You will be redirected to the signup page...</p>
         <meta http-equiv="refresh" content="0; url='{% url 'signin' %}'">
